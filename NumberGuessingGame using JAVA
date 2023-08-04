@@ -1,0 +1,85 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
+
+public class NumberGuessingGame extends JFrame {
+    private int randomNumber;
+    private int attemptsLeft;
+    private JTextField inputField;
+    private JTextArea infoArea;
+
+    public NumberGuessingGame() {
+        super("Number Guessing Game");
+        initialize();
+        generateRandomNumber();
+    }
+
+    private void initialize() {
+        randomNumber = 0;
+        attemptsLeft = 10;
+
+        // Components
+        JLabel label = new JLabel("Enter your guess (1-100): ");
+        inputField = new JTextField(10);
+        inputField.addActionListener(new GuessListener());
+        JButton guessButton = new JButton("Guess");
+        guessButton.addActionListener(new GuessListener());
+        infoArea = new JTextArea(10, 30);
+        infoArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(infoArea);
+
+        // Layout
+        setLayout(new FlowLayout());
+        add(label);
+        add(inputField);
+        add(guessButton);
+        add(scrollPane);
+
+        pack();
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+    }
+
+    private void generateRandomNumber() {
+        Random random = new Random();
+        randomNumber = random.nextInt(100) + 1; // Generates a random number between 1 and 100
+    }
+
+    private void checkGuess(int guess) {
+        attemptsLeft--;
+        if (guess == randomNumber) {
+            showResult("Congratulations! You guessed it right!");
+        } else if (attemptsLeft == 0) {
+            showResult("Game Over. You ran out of attempts. The number was: " + randomNumber);
+        } else if (guess < randomNumber) {
+            infoArea.append("Try a higher number. Attempts left: " + attemptsLeft + "\n");
+        } else {
+            infoArea.append("Try a lower number. Attempts left: " + attemptsLeft + "\n");
+        }
+    }
+
+    private void showResult(String message) {
+        infoArea.append(message + "\n");
+        inputField.setEditable(false);
+    }
+
+    private class GuessListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                int guess = Integer.parseInt(inputField.getText());
+                checkGuess(guess);
+                inputField.setText("");
+            } catch (NumberFormatException ex) {
+                infoArea.append("Invalid input. Please enter a valid number.\n");
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new NumberGuessingGame().setVisible(true));
+    }
+}
